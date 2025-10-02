@@ -1,0 +1,112 @@
+---
+title: "palmerpenguins"
+subtitle: 'MSc in Statistics 2025/26, Imperial College London'
+author: "06044886"
+format:
+  html:
+    toc: true
+    highlight: tango
+    self-contained: true
+    df-print: paged
+  pdf: default
+format-links: false
+bibliography: "MSc_Statistics_coursework_template_quarto.bib" 
+---
+
+```{=html}
+<style type="text/css">
+h1{
+  font-size: 24pt;
+}
+h2{
+  font-size: 18pt;
+}
+body{
+  font-size: 12pt;
+}
+</style>
+```
+
+```{r setup, include = FALSE, tidy=TRUE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+include_solutions <- TRUE
+```
+
+```{r setup2, include=FALSE, tidy=TRUE}
+require(rmarkdown)
+require(knitr)
+require(kableExtra)
+# Put any library imports and other preamble here.
+```
+
+Reproduce the simulations and analyses of the palmenr penguins dataset in the coursework template.
+
+Adapt the the simulations and analyses of the palmenr penguins dataset to instead use the ChickWeight dataset that comes with R.
+
+# install packages
+
+```{r}
+#| warning: false
+library(palmerpenguins)
+library(dplyr)
+library(ggplot2)
+```
+
+# mean
+
+```{r}
+#| results: hold
+penguins <- penguins %>%
+  mutate(has_na = apply(is.na(.), 1, any))
+penguins %>%
+  group_by(species) %>%
+  summarise(
+    avg_bill = mean(bill_length_mm, na.rm = TRUE),
+    avg_flipper = mean(flipper_length_mm, na.rm = TRUE)
+  )
+
+
+species_mean <- function(data, var) {
+  data %>%
+    group_by(species) %>%
+    summarise(mean_val = mean({{ var }}, na.rm = TRUE))
+}
+species_mean(penguins, flipper_length_mm)
+```
+
+# Plot
+
+```{r echo=FALSE}
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g,
+                     color = species, shape = species)) +
+  geom_point(na.rm = TRUE)
+
+species_means <- penguins %>%
+  group_by(species) %>%
+  summarise(
+    flipper_mean = mean(flipper_length_mm, na.rm = TRUE),
+    bodymass_mean = mean(body_mass_g, na.rm = TRUE)
+  )
+
+ggplot(penguins, aes(x = flipper_length_mm, y = body_mass_g,
+                     color = species, shape = species)) +
+  geom_point(na.rm = TRUE) +
+  geom_point(data = species_means,
+             aes(x = flipper_mean, y = bodymass_mean, color = species),
+             shape = 8, size = 4)
+
+```
+
+# Code appendix
+
+Rather than re-paste all the code to the appendix, here is a trick which makes the markdown file output all the code (without) execution in the appendix, without any duplication.
+
+Please keep in mind to format the code so that the entire code is clearly visible and does not run into the margins of the pdf version.
+
+```{r ref.label=knitr::all_labels(), echo = T, eval = F}
+```
+
+# References
